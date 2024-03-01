@@ -49,7 +49,7 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    if member.guild == HOME:
+    if member.guild.id == HOME.id:
         channel = client.get_channel(1193183104815345734)
         message = discord.Embed(
             title="Welcome",
@@ -63,7 +63,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    if member.guild == HOME:
+    if member.guild.id == HOME.id:
         channel = client.get_channel(898847240460845077)
         message = discord.Embed(
             title="Goodbye",
