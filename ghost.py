@@ -11,13 +11,13 @@ intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 TOKEN = getenv("TOKEN")
-GUILD = discord.Object(id=898841935937163286)
+HOME = discord.Object(id=898841935937163286)
+GUILDS = discord.Guild
 
 
 @tree.command(
     name="avatar",
-    description="Get your avatar image",
-    guild=GUILD
+    description="Get avatar image",
 )
 async def avatar(interaction: discord.Interaction, member: typing.Optional[discord.Member]=None):
     if member is None:
@@ -33,16 +33,23 @@ async def avatar(interaction: discord.Interaction, member: typing.Optional[disco
     await interaction.response.send_message(embed=embed)
 
 
+@tree.command(
+    name="ping",
+    description="Show bot latency"
+)
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Pong: **{client.latency:.2f} ms**")
+
+
 @client.event
 async def on_ready():
-
-    await tree.sync(guild=GUILD)
+    await tree.sync()
     print(f"Logged in as {client.user}")
 
 
 @client.event
 async def on_member_join(member):
-    if member.guild == GUILD:
+    if member.guild == HOME:
         channel = client.get_channel(1193183104815345734)
         message = discord.Embed(
             title="Welcome",
@@ -56,7 +63,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    if member.guild == GUILD:
+    if member.guild == HOME:
         channel = client.get_channel(898847240460845077)
         message = discord.Embed(
             title="Goodbye",
