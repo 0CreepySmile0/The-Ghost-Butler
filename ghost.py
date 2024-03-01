@@ -20,9 +20,10 @@ async def on_member_join(member):
     channel = client.get_channel(1193183104815345734)
     message = discord.Embed(
         title="Welcome",
-        description=f"***{member.name}*** ไม่ได้พบกันนานเลยนะ =)",
+        description=f"***{member.mention} ({member.name})*** ไม่ได้พบกันนานเลยนะ =)",
         color=discord.Color.random(),
         timestamp=datetime.now(),
+        url=member.display_avatar.url
     )
     await channel.send(embed=message)
 
@@ -50,6 +51,7 @@ async def on_message(message):
     if message.channel.id == 1212011324033470566:
         if message.content == ".":
             await message.author.add_roles(*role)
+            await message.delete(delay=2.0)
     if message.author.id not in admin_id:
         await message.delete(delay=2.0)
 
