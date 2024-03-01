@@ -1,18 +1,38 @@
 import discord
-from discord.ext import commands
+from discord import app_commands
 from datetime import datetime
 from os import getenv
 from dotenv import load_dotenv
 
+
 load_dotenv()
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix=".", intents=intents)
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 TOKEN = getenv("TOKEN")
+
+
+@tree.command(
+    name="avatar",
+    description="Get your avatar image",
+    guild=discord.Object(id=898841935937163286)
+)
+async def avatar(interaction):
+    image = interaction.user.display_avatar.url
+    embed = discord.Embed(title=f"{interaction.user.display_name}'s Avatar")
+    embed.set_image(url=image)
+    await interaction.response.send_message(embed=embed)
+
+
+# @tree.command(
+#     name=
+# )
 
 
 @client.event
 async def on_ready():
-    print('Logged in as {0.user}'.format(client))
+    await tree.sync(guild=discord.Object(id=898841935937163286))
+    print(f"Logged in as {client.user}")
 
 
 @client.event
@@ -23,8 +43,8 @@ async def on_member_join(member):
         description=f"***{member.mention} ({member.name})*** ไม่ได้พบกันนานเลยนะ =)",
         color=discord.Color.random(),
         timestamp=datetime.now(),
-        url=member.display_avatar.url
     )
+    message.set_image(url=member.display_avatar.url)
     await channel.send(embed=message)
 
 
@@ -33,10 +53,11 @@ async def on_member_remove(member):
     channel = client.get_channel(898847240460845077)
     message = discord.Embed(
         title="Goodbye",
-        description=f"April showers bring may flowers ***{member.name}***",
+        description=f"April showers bring may flowers ***{member.mention} ({member.name})***",
         color=discord.Color.random(),
         timestamp=datetime.now(),
     )
+    message.set_image(url=member.display_avatar.url)
     await channel.send(embed=message)
 
 
