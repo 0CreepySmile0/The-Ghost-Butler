@@ -81,7 +81,8 @@ async def on_member_remove(member: discord.Member):
 @client.event
 async def on_member_update(before: discord.Member, after: discord.Member):
     if after.guild.id == HOME.id:
-        if after.guild.get_role(996733822500610128) in after.roles:
+        boost_role = after.guild.get_role(996733822500610128)
+        if (boost_role in after.roles) and (boost_role not in before.roles):
             channel = after.guild.system_channel
             emoji = after.guild.get_emoji(1108248544101539911)
             emoji2 = after.guild.get_emoji(1181847701726441502)
