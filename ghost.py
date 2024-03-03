@@ -27,7 +27,25 @@ async def avatar(interaction: discord.Interaction, member: typing.Optional[disco
     image = who.display_avatar.url
     embed = discord.Embed(
         title=f"{who.display_name}'s Avatar",
-        color=discord.Color.random()
+        color=who.top_role.color
+    )
+    embed.set_image(url=image)
+    await interaction.response.send_message(embed=embed)
+
+
+@tree.command(
+    name="global_avatar",
+    description="Get global avatar image"
+)
+async def global_avatar(interaction: discord.Interaction, member: typing.Optional[discord.Member]=None):
+    if member is None:
+        who = interaction.user
+    else:
+        who = member
+    image = who.display_avatar.url
+    embed = discord.Embed(
+        title=f"{who.name}'s Avatar",
+        color=who.accent_color
     )
     embed.set_image(url=image)
     await interaction.response.send_message(embed=embed)
@@ -55,7 +73,7 @@ async def on_member_join(member: discord.Member):
         message = discord.Embed(
             title="Welcome!",
             description=f"***{member.mention} ({member.name})*** ไม่ได้พบกันนานเลยนะ {emoji}",
-            color=discord.Color.random(),
+            color=member.accent_color,
             timestamp=datetime.now()
         )
         message.set_image(url=member.display_avatar.url)
@@ -71,7 +89,7 @@ async def on_member_remove(member: discord.Member):
             title="Goodbye~",
             description=f"April showers bring may flowers ***{member.mention} ({member.name})*** "
                         f"{emoji}",
-            color=discord.Color.random(),
+            color=member.top_role.color,
             timestamp=datetime.now()
         )
         message.set_image(url=member.display_avatar.url)
