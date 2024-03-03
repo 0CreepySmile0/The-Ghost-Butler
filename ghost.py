@@ -44,7 +44,7 @@ async def global_avatar(interaction: discord.Interaction, member: typing.Optiona
         who = member
     image = who.avatar.url
     embed = discord.Embed(
-        title=f"{who.name}'s Avatar",
+        title=f"{who.global_name}'s Avatar",
         color=who.accent_color
     )
     embed.set_image(url=image)
@@ -62,6 +62,8 @@ async def ping(interaction: discord.Interaction):
 @client.event
 async def on_ready():
     await tree.sync()
+    activity = discord.Activity(type=discord.ActivityType.watching, name="How to do chores")
+    await client.change_presence(activity=activity)
     print(f"Logged in as {client.user}")
 
 
