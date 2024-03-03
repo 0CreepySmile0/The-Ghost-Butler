@@ -42,7 +42,7 @@ async def global_avatar(interaction: discord.Interaction, member: typing.Optiona
         who = interaction.user
     else:
         who = member
-    image = who.default_avatar.url
+    image = who.avatar.url
     embed = discord.Embed(
         title=f"{who.name}'s Avatar",
         color=who.accent_color
