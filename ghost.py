@@ -148,9 +148,10 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
         author = before.author
         embed = discord.Embed(title=f"Message edited at {after.jump_url}",
                               timestamp=datetime.now(),
-                              description=f"**Message by {author.mention}**")
-        embed.add_field(name="Before", value=f"__Content:__ {before.content}")
-        embed.add_field(name="After", value=f"__Content:__ {after.content}")
+                              description=f"**Message by {author.mention}**",
+                              color=author.color)
+        embed.add_field(name="Before", value=f"*Content:* {before.content}", inline=False)
+        embed.add_field(name="After", value=f"*Content:* {after.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         message_channel = client.get_channel(1214605219770667101)
@@ -165,8 +166,9 @@ async def on_message_delete(message: discord.Message):
         author = message.author
         embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
                               timestamp=datetime.now(),
-                              description=f"**Message by {author.mention}**\n"
-                                          f"__Content:__ {message.content}")
+                              description=f"**Message by {author.mention}**",
+                              color=author.color)
+        embed.add_field(name="Deleted", value=f"*Content:* {message.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         message_channel = client.get_channel(1214605219770667101)
