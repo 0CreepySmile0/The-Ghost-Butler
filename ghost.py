@@ -48,7 +48,7 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
 
 
 @tree.command(
-    name="global avatar",
+    name="global_avatar",
     description="Get global avatar image"
 )
 async def global_avatar(interaction: discord.Interaction, member: discord.Member = None):
