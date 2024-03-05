@@ -3,23 +3,37 @@ from discord import app_commands
 from datetime import datetime
 from os import getenv
 from dotenv import load_dotenv
-import typing
 
 
 load_dotenv()
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
-TOKEN = getenv("TOKEN")
+TOKEN = getenv("GHOST")
 HOME = discord.Object(id=898841935937163286)
 guilds = lambda: {i.id: i for i in client.guilds}
+
+
+# @tree.command(
+#     name="kick",
+#     description="Kick someone's ass outta server"
+# )
+# @app_commands.checks.has_permissions(administrator=True)
+# async def kick(interaction: discord.Interaction, member: discord.Member):
+#     if member.id == interaction.user.id:
+#         await interaction.response.send_message("You can't kick yourself, dumb", ephemeral=True)
+#     else:
+#         await interaction.response.\
+#             send_message(f"Successfully kick {member.mention}", ephemeral=True)
+#         await interaction.\
+#             guild.kick(member, reason=f"You were kicked by {interaction.user.mention}")
 
 
 @tree.command(
     name="avatar",
     description="Get avatar image"
 )
-async def avatar(interaction: discord.Interaction, member: typing.Optional[discord.Member]=None):
+async def avatar(interaction: discord.Interaction, member: discord.Member = None):
     if member is None:
         who = interaction.user
     else:
@@ -27,17 +41,17 @@ async def avatar(interaction: discord.Interaction, member: typing.Optional[disco
     image = who.display_avatar.url
     embed = discord.Embed(
         title=f"{who.display_name}'s Avatar",
-        color=who.top_role.color
+        color=who.color
     )
     embed.set_image(url=image)
     await interaction.response.send_message(embed=embed)
 
 
 @tree.command(
-    name="global_avatar",
+    name="global avatar",
     description="Get global avatar image"
 )
-async def global_avatar(interaction: discord.Interaction, member: typing.Optional[discord.Member]=None):
+async def global_avatar(interaction: discord.Interaction, member: discord.Member = None):
     if member is None:
         who = interaction.user
     else:
@@ -91,7 +105,7 @@ async def on_member_remove(member: discord.Member):
             title="Goodbye~",
             description=f"April showers bring may flowers ***{member.mention} ({member.name})*** "
                         f"{emoji}",
-            color=member.top_role.color,
+            color=member.color,
             timestamp=datetime.now()
         )
         message.set_image(url=member.display_avatar.url)
