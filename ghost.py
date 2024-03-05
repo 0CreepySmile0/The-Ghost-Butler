@@ -74,14 +74,6 @@ async def ping(interaction: discord.Interaction):
 
 
 @client.event
-async def on_ready():
-    await tree.sync()
-    activity = discord.Activity(type=discord.ActivityType.watching, name="How to do chores")
-    await client.change_presence(activity=activity)
-    print(f"Logged in as {client.user}")
-
-
-@client.event
 async def on_member_join(member: discord.Member):
     if member.guild.id == HOME.id:
         channel = client.get_channel(1193183104815345734)
@@ -146,6 +138,47 @@ async def on_message(message: discord.Message):
             await message.delete(delay=2.0)
         if message.author.id not in admin_id:
             await message.delete(delay=2.0)
+
+
+@client.event
+async def on_message_edit(before: discord.Message, after: discord.Message):
+    if after.author.bot:
+        return
+    if after.guild.id == HOME.id:
+        author = before.author
+        embed = discord.Embed(title=f"Message edited at {after.jump_url}",
+                              timestamp=datetime.now(),
+                              description=f"**Message by {author.mention}**")
+        embed.add_field(name="Before", value=f"__Content:__ {before.content}")
+        embed.add_field(name="After", value=f"__Content:__ {after.content}")
+        embed.set_footer(text=f"{author.display_name} ({author.id})",
+                         icon_url=author.display_avatar.url)
+        message_channel = client.get_channel(1214605219770667101)
+        await message_channel.send(embed=embed)
+
+
+@client.event
+async def on_message_delete(message: discord.Message):
+    if message.author.bot:
+        return
+    if message.guild.id == HOME.id:
+        author = message.author
+        embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
+                              timestamp=datetime.now(),
+                              description=f"**Message by {author.mention}**\n"
+                                          f"__Content:__ {message.content}")
+        embed.set_footer(text=f"{author.display_name} ({author.id})",
+                         icon_url=author.display_avatar.url)
+        message_channel = client.get_channel(1214605219770667101)
+        await message_channel.send(embed=embed)
+
+
+@client.event
+async def on_ready():
+    await tree.sync()
+    activity = discord.Activity(type=discord.ActivityType.watching, name="How to do chores")
+    await client.change_presence(activity=activity)
+    print(f"Logged in as {client.user}")
 
 
 client.run(TOKEN)
