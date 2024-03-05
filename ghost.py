@@ -12,6 +12,9 @@ tree = app_commands.CommandTree(client)
 TOKEN = getenv("GHOST")
 HOME = discord.Object(id=898841935937163286)
 guilds = lambda: {i.id: i for i in client.guilds}
+red = 0xff0000
+yellow = 0xffea00
+green = 0x30ff00
 
 
 # @tree.command(
@@ -149,7 +152,7 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
         embed = discord.Embed(title=f"Message edited at {after.jump_url}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
-                              color=author.color)
+                              color=yellow)
         embed.add_field(name="Before", value=f"*Content:* {before.content}", inline=False)
         embed.add_field(name="After", value=f"*Content:* {after.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
@@ -167,7 +170,7 @@ async def on_message_delete(message: discord.Message):
         embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
-                              color=author.color)
+                              color=red)
         embed.add_field(name="Deleted", value=f"*Content:* {message.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
