@@ -202,7 +202,7 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
             embed.set_footer(text=f"{member.display_name} ({member.id})",
                              icon_url=member.display_avatar.url)
             await message_channel.send(embed=embed)
-        elif (before.channel is not None) and (after.channel is not None):
+        elif before.channel != after.channel:
             embed = discord.Embed(title="Moved",
                                   description=f"{member.mention} change voice channel",
                                   color=YELLOW,
