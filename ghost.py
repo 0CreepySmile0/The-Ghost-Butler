@@ -12,9 +12,9 @@ tree = app_commands.CommandTree(client)
 TOKEN = getenv("GHOST")
 HOME = discord.Object(id=898841935937163286)
 guilds = lambda: {i.id: i for i in client.guilds}
-red = 0xff0000
-yellow = 0xffea00
-green = 0x30ff00
+RED = 0xff0000
+YELLOW = 0xffea00
+GREEN = 0x30ff00
 
 
 # @tree.command(
@@ -145,14 +145,14 @@ async def on_message(message: discord.Message):
 
 @client.event
 async def on_message_edit(before: discord.Message, after: discord.Message):
-    if after.author.bot:
+    if before.author == client.user:
         return
     if after.guild.id == HOME.id:
         author = before.author
         embed = discord.Embed(title=f"Message edited at {after.jump_url}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
-                              color=yellow)
+                              color=YELLOW)
         embed.add_field(name="Before", value=f"*Content:* {before.content}", inline=False)
         embed.add_field(name="After", value=f"*Content:* {after.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
@@ -163,19 +163,55 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
 
 @client.event
 async def on_message_delete(message: discord.Message):
-    if message.author.bot:
+    if message.author == client.user:
         return
     if message.guild.id == HOME.id:
         author = message.author
         embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
-                              color=red)
+                              color=RED)
         embed.add_field(name="Deleted", value=f"*Content:* {message.content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         message_channel = client.get_channel(1214605219770667101)
         await message_channel.send(embed=embed)
+
+
+@client.event
+async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    if member == client.user:
+        return
+    if member.guild.id == HOME.id:
+        message_channel = client.get_channel(1214605381393846323)
+        if (before.channel is None) and (after.channel is not None):
+            embed = discord.Embed(title="Joined",
+                                  description=f"{member.mention} join voice channel",
+                                  color=GREEN,
+                                  timestamp=datetime.now())
+            embed.add_field(name="Current", value=f"{after.channel.mention}", inline=False)
+            embed.set_footer(text=f"{member.display_name} ({member.id})",
+                             icon_url=member.display_avatar.url)
+            await message_channel.send(embed=embed)
+        elif (before.channel is not None) and (after.channel is None):
+            embed = discord.Embed(title="Disconnected",
+                                  description=f"{member.mention} leave voice channel",
+                                  color=RED,
+                                  timestamp=datetime.now())
+            embed.add_field(name="Last channel", value=f"{before.channel.mention}", inline=False)
+            embed.set_footer(text=f"{member.display_name} ({member.id})",
+                             icon_url=member.display_avatar.url)
+            await message_channel.send(embed=embed)
+        elif (before.channel is not None) and (after.channel is not None):
+            embed = discord.Embed(title="Moved",
+                                  description=f"{member.mention} change voice channel",
+                                  color=YELLOW,
+                                  timestamp=datetime.now())
+            embed.add_field(name="From", value=f"{before.channel.mention}", inline=False)
+            embed.add_field(name="To", value=f"{after.channel.mention}", inline=False)
+            embed.set_footer(text=f"{member.display_name} ({member.id})",
+                             icon_url=member.display_avatar.url)
+            await message_channel.send(embed=embed)
 
 
 @client.event
