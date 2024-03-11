@@ -1,7 +1,7 @@
+import os
 import discord
 from discord import app_commands
 from datetime import datetime
-from os import getenv
 from dotenv import load_dotenv
 
 
@@ -9,27 +9,27 @@ load_dotenv()
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
-TOKEN = getenv("GHOST")
-HOME = discord.Object(id=898841935937163286)
+TOKEN = os.getenv("GHOST")
+HOME = discord.Object(898841935937163286)
 guilds = lambda: {i.id: i for i in client.guilds}
 RED = 0xff0000
 YELLOW = 0xffea00
 GREEN = 0x30ff00
 
 
-# @tree.command(
-#     name="kick",
-#     description="Kick someone's ass outta server"
-# )
-# @app_commands.checks.has_permissions(administrator=True)
-# async def kick(interaction: discord.Interaction, member: discord.Member):
-#     if member.id == interaction.user.id:
-#         await interaction.response.send_message("You can't kick yourself, dumb", ephemeral=True)
-#     else:
-#         await interaction.response.\
-#             send_message(f"Successfully kick {member.mention}", ephemeral=True)
-#         await interaction.\
-#             guild.kick(member, reason=f"You were kicked by {interaction.user.mention}")
+@tree.command(
+    name="kick",
+    description="Kick someone's ass outta server"
+)
+@app_commands.checks.has_permissions(administrator=True)
+async def kick(interaction: discord.Interaction, member: discord.Member):
+    if member.id == interaction.user.id:
+        await interaction.response.send_message("You can't kick yourself, dumb", ephemeral=True)
+    else:
+        await interaction.response.\
+            send_message(f"Successfully kick {member.mention}", ephemeral=True)
+        await interaction.\
+            guild.kick(member, reason=f"You were kicked by {interaction.user.mention}")
 
 
 @tree.command(
@@ -166,16 +166,33 @@ async def on_message_delete(message: discord.Message):
     if message.author == client.user:
         return
     if message.guild.id == HOME.id:
+        files = []
         author = message.author
+        message_channel = client.get_channel(1214605219770667101)
         embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
                               color=RED)
-        embed.add_field(name="Deleted", value=f"*Content:* {message.content}", inline=False)
+        if len(message.content) >= 1024:
+            name = "text.txt"
+            with open(name, "w") as f:
+                f.write(message.content)
+            file = os.path.join(name)
+            files.append(discord.File(fp=file))
+            content = "***In text.txt on top***"
+        else:
+            content = message.content
+        if message.attachments:
+            for i in message.attachments:
+                await i.save(i.filename)
+                file = os.path.join(i.filename)
+                files.append(discord.File(fp=file))
+        embed.add_field(name="Deleted", value=f"*Content:* {content}", inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
-        message_channel = client.get_channel(1214605219770667101)
-        await message_channel.send(embed=embed)
+        await message_channel.send(embed=embed, files=files)
+        for i in files:
+            os.remove(i.filename)
 
 
 @client.event
