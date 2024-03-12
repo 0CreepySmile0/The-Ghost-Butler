@@ -17,20 +17,20 @@ YELLOW = 0xffea00
 GREEN = 0x30ff00
 
 
-@tree.command(
-    name="kick",
-    description="Kick someone's ass outta server"
-)
-@app_commands.checks.has_permissions(administrator=True)
-async def kick(interaction: discord.Interaction, member: discord.Member):
-    if member.id == interaction.user.id:
-        await interaction.response.send_message("You can't kick yourself, dumb", ephemeral=True)
-    else:
-        await interaction.response.\
-            send_message(f"Successfully kick {member.mention}", ephemeral=True)
-        await interaction.\
-            guild.kick(member, reason=f"You were kicked by {interaction.user.mention}")
-
+# @tree.command(
+#     name="kick",
+#     description="Kick someone's ass outta server"
+# )
+# @app_commands.checks.has_permissions(administrator=True)
+# async def kick(interaction: discord.Interaction, member: discord.Member):
+#     if member.id == interaction.user.id:
+#         await interaction.response.send_message("You can't kick yourself, dumb", ephemeral=True)
+#     else:
+#         await interaction.response.\
+#             send_message(f"Successfully kick {member.mention}", ephemeral=True)
+#         await interaction.\
+#             guild.kick(member, reason=f"You were kicked by {interaction.user.mention}")
+#
 
 @tree.command(
     name="avatar",
@@ -148,17 +148,38 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
     if before.author == client.user:
         return
     if after.guild.id == HOME.id:
+        files = []
         author = before.author
         embed = discord.Embed(title=f"Message edited at {after.jump_url}",
                               timestamp=datetime.now(),
                               description=f"**Message by {author.mention}**",
                               color=YELLOW)
-        embed.add_field(name="Before", value=f"*Content:* {before.content}", inline=False)
-        embed.add_field(name="After", value=f"*Content:* {after.content}", inline=False)
+        if len(before.content) >= 1024:
+            name = "before.txt"
+            with open(name, "w") as f:
+                f.write(before.content)
+            file = os.path.join(name)
+            files.append(discord.File(fp=file))
+            before_content = "***In before.txt on top***"
+        else:
+            before_content = before.content
+        if len(after.content) >= 1024:
+            name = "after.txt"
+            with open(name, "w") as f:
+                f.write(after.content)
+            file = os.path.join(name)
+            files.append(discord.File(fp=file))
+            after_content = "***In after.txt on top***"
+        else:
+            after_content = after.content
+        embed.add_field(name="Before:", value=before_content, inline=False)
+        embed.add_field(name="After", value=after_content, inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         message_channel = client.get_channel(1214605219770667101)
-        await message_channel.send(embed=embed)
+        await message_channel.send(embed=embed, files=files)
+        for i in files:
+            os.remove(i.filename)
 
 
 @client.event
@@ -166,8 +187,8 @@ async def on_message_delete(message: discord.Message):
     if message.author == client.user:
         return
     if message.guild.id == HOME.id:
-        files = []
         author = message.author
+        files = []
         message_channel = client.get_channel(1214605219770667101)
         embed = discord.Embed(title=f"Message deleted at {message.channel.mention}",
                               timestamp=datetime.now(),
@@ -187,7 +208,7 @@ async def on_message_delete(message: discord.Message):
                 await i.save(i.filename)
                 file = os.path.join(i.filename)
                 files.append(discord.File(fp=file))
-        embed.add_field(name="Deleted", value=f"*Content:* {content}", inline=False)
+        embed.add_field(name="Content:", value=content, inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         await message_channel.send(embed=embed, files=files)
