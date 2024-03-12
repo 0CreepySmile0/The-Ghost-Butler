@@ -108,25 +108,6 @@ async def on_member_remove(member: discord.Member):
 
 
 @client.event
-async def on_member_update(before: discord.Member, after: discord.Member):
-    if after.guild.id == HOME.id:
-        boost_role = after.guild.get_role(996733822500610128)
-        if (boost_role in after.roles) and (boost_role not in before.roles):
-            channel = after.guild.system_channel
-            emoji = after.guild.get_emoji(1108248544101539911)
-            emoji2 = after.guild.get_emoji(1181847701726441502)
-            embed = discord.Embed(
-                title="Thank you!",
-                description=f"""***{after.mention} ({after.name})***
-ขอบคุณสำหรับการซัพพอร์ต หวังว่าเราจะได้มีโอกาสตอบแทนคุณ...{emoji2}{emoji}""",
-                color=0xff00d8,
-                timestamp=datetime.now()
-            )
-            embed.set_image(url=after.display_avatar.url)
-            await channel.send(embed=embed)
-
-
-@client.event
 async def on_message(message: discord.Message):
     if message.channel.id == 1212011324033470566:
         admin_id = [812919079278608415, 759707563704057877]
@@ -141,13 +122,30 @@ async def on_message(message: discord.Message):
             await message.delete(delay=2.0)
         if message.author.id not in admin_id:
             await message.delete(delay=2.0)
+    elif message.guild.id == HOME.id:
+        if message.is_system():
+            if message.type == discord.MessageType.premium_guild_subscription:
+                channel = client.get_channel(1181486685477941290)
+                emoji = message.guild.get_emoji(1108248544101539911)
+                emoji2 = message.guild.get_emoji(1181847701726441502)
+                embed = discord.Embed(
+                    title="Thank you!",
+                    description=f"""***{message.author.mention} ({message.author.name})***
+                ขอบคุณสำหรับการซัพพอร์ต หวังว่าเราจะได้มีโอกาสตอบแทนคุณ...{emoji2}{emoji}""",
+                    color=0xff00d8,
+                    timestamp=datetime.now()
+                )
+                embed.set_image(url=message.author.display_avatar.url)
+                await channel.send(embed=embed)
 
 
 @client.event
 async def on_message_edit(before: discord.Message, after: discord.Message):
     if before.author == client.user:
         return
-    if after.guild.id == HOME.id:
+    if before.content == after.content:
+        return
+    if before.guild.id == HOME.id:
         files = []
         author = before.author
         embed = discord.Embed(title=f"Message edited at {after.jump_url}",
@@ -173,7 +171,7 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
         else:
             after_content = after.content
         embed.add_field(name="Before:", value=before_content, inline=False)
-        embed.add_field(name="After", value=after_content, inline=False)
+        embed.add_field(name="After:", value=after_content, inline=False)
         embed.set_footer(text=f"{author.display_name} ({author.id})",
                          icon_url=author.display_avatar.url)
         message_channel = client.get_channel(1214605219770667101)
@@ -184,6 +182,8 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
 
 @client.event
 async def on_message_delete(message: discord.Message):
+    if message.is_system():
+        return
     if message.author == client.user:
         return
     if message.guild.id == HOME.id:
