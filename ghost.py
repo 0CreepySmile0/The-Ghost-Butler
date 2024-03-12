@@ -1,8 +1,8 @@
 import os
-import discord
-from discord import app_commands
 from datetime import datetime
 from dotenv import load_dotenv
+import discord
+from discord import app_commands
 
 
 load_dotenv()
@@ -141,6 +141,9 @@ async def on_member_remove(member: discord.Member):
 async def on_message(message: discord.Message):
     if message.author == client.user:
         return
+    if message.channel.id == 1212011324033470566:
+        if not message.author.guild_permissions.administrator:
+            await message.delete(delay=2)
     if message.guild.id == HOME.id:
         if message.is_system():
             if message.type == discord.MessageType.premium_guild_subscription:
