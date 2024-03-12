@@ -33,6 +33,36 @@ GREEN = 0x30ff00
 #
 
 @tree.command(
+    name="รับยศ",
+    description="ใช้คำสั่งนี้รับยศ Member เพื่อจะได้เห็นห้องอื่นๆเพิ่มเติม",
+    guild=client.get_guild(898841935937163286)
+)
+async def get_roles(interaction: discord.Interaction):
+    if interaction.channel.id == 1212011324033470566:
+        role_id = [1181437334638567484, 1108179331076861953, 1181623448259268669,
+                   1181441664255004775]
+        server = client.get_guild(898841935937163286)
+        roles = [discord.utils.get(server.roles, id=i) for i in role_id]
+        emoji = client.get_emoji(1181847879174856834)
+        embed = discord.Embed(
+            title="Successfully add roles!",
+            description=f"เราได้เพิ่มยศ {roles[1].mention} ให้คุณแล้ว, สำรวจดิสของเราได้เลยนะ {emoji}",
+            color=interaction.user.accent_color
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.user.add_roles(*roles)
+    else:
+        channel = client.get_channel(1212011324033470566)
+        emoji = client.get_emoji(1181847802612027413)
+        embed = discord.Embed(
+            title="Invalid channel",
+            description=f"ใช้คำสั่งนี้ได้แค่ที่ห้อง {channel.mention} เท่านั้นน้า {emoji}",
+            color=interaction.user.accent_color
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+@tree.command(
     name="avatar",
     description="Get avatar image"
 )
@@ -109,20 +139,9 @@ async def on_member_remove(member: discord.Member):
 
 @client.event
 async def on_message(message: discord.Message):
-    if message.channel.id == 1212011324033470566:
-        admin_id = [812919079278608415, 759707563704057877]
-        server = client.get_guild(898841935937163286)
-        role_id = [1181437334638567484, 1108179331076861953, 1181623448259268669,
-                   1181441664255004775]
-        role = [discord.utils.get(server.roles, id=i) for i in role_id]
-        if message.author == client.user:
-            return None
-        if message.content == ".":
-            await message.author.add_roles(*role)
-            await message.delete(delay=2.0)
-        if message.author.id not in admin_id:
-            await message.delete(delay=2.0)
-    elif message.guild.id == HOME.id:
+    if message.author == client.user:
+        return
+    if message.guild.id == HOME.id:
         if message.is_system():
             if message.type == discord.MessageType.premium_guild_subscription:
                 channel = client.get_channel(1181486685477941290)
